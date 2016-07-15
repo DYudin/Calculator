@@ -1,21 +1,21 @@
 ﻿using System;
 using Microsoft.Practices.Unity;
-using System.Collections.Generic;
-using System.Text;
+using Calculator.BL.Logic;
+using Calculator.BL.Repository;
 
 namespace ConsoleApp
 {
-    class Program
+    internal class Program
     {
+        // TODO:
+        private static string pathToFile = string.Empty;
+
         private static void Main(string[] args)
         {
-            // TODO:
-            string pathToOperationsDescriptionFile = string.Empty;
-
             // 3. create unity container and build all components
             using (IUnityContainer unity = new UnityContainer())
             {
-                buildUnity(unity, pathToOperationsDescriptionFile);
+                buildUnity(unity);
 
                 var cmd = string.Empty;
                 while (cmd != "exit")
@@ -27,15 +27,11 @@ namespace ConsoleApp
                     {
                         // 1. Parse input line
                         IParser parser = unity.Resolve<IParser>();
-                        var expression = parser.Parse(cmd);
+                        string[] separatedString = parser.Parse(cmd);
                        
-                        // 2. Build chain of operations to execute
-                        IExecutionChainBuilder executionChainBuilder = unity.Resolve<IExecutionChainBuilder>();
-                        var executionChain = executionChainBuilder.BuildChain(expression);
-                        
-                        // 3. Execute chain of operations
-                        ICalculatorEngine engine = unity.Resolve<CalculatorEngine>();
-                        var result = engine.Calculate(executionChain);
+                        // 2. Execute calculation
+                        ICalculatorEngine engine = unity.Resolve<ICalculatorEngine>();
+                        var result = engine.Calculate(separatedString);
 
                         Console.WriteLine("Result of calculating: {0}", result);
                     }
@@ -52,66 +48,36 @@ namespace ConsoleApp
         /// </summary>
         /// <param name="unityContainer">Container of components</param>
         /// <exception cref="Exception">Some application exception</exception>
-        private static void buildUnity(IUnityContainer unityContainer, string pathToOperationDescriptionFile)
+        private static void buildUnity(IUnityContainer unityContainer)
         {
             try
             {
                 // 1. Build Repositories
-                unityContainer.RegisterType<OperationsRepository, OperationsRepository>(
-                  new ContainerControlledLifetimeManager());
-                OperationsRepository repository = unityContainer.Resolve<OperationsRepository>();
-                
+                unityContainer.RegisterType<IOperationsRepository, OperationsRepository>(
+                    new ContainerControlledLifetimeManager());
+                IOperationsRepository repository = unityContainer.Resolve<OperationsRepository>();
+
                 // 2. Build Loaders
-                unityContainer.RegisterType<IOperationsLoader, XmlOperationLoader>(
+                unityContainer.RegisterType<IOperationsLoader, AssemblyOperationLoader>(
                     new ContainerControlledLifetimeManager(),
                     new InjectionConstructor(repository));
                 IOperationsLoader loader = unityContainer.Resolve<IOperationsLoader>();
-                loader.LoadOperations(string pathToOperationDescriptionFile);
-                
+                loader.LoadOperations(pathToFile);
+
                 // 3. Build Parser
-                unityContainer.RegisterType<IParser, ExpressionParser>(
+                unityContainer.RegisterType<IParser, ReversePolishNotationParser>(
                     new ContainerControlledLifetimeManager(),
                     new InjectionConstructor(repository));
-        
-                // 4. Build execution chain builder
-                unityContainer.RegisterType<IExecutionChainBuilder, ExecutionChainBuilder>(
-                    new ContainerControlledLifetimeManager());
-        
-                // 5. Build Calculator engine
+
+                // 4. Build Calculator engine
                 unityContainer.RegisterType<ICalculatorEngine, CalculatorEngine>(
-                    new ContainerControlledLifetimeManager());
-                
-                // Network viewmodel
-                unityContainer.RegisterType<NetworkTabViewModel, NetworkTabViewModel>(
                     new ContainerControlledLifetimeManager(),
-                    new InjectionConstructor(
-                        transmitterManager,
-                        busyIndicatorWithCancel,
-                        userInteraction));
-                NetworkTabViewModel networkTabViewModel = unityContainer.Resolve<NetworkTabViewModel>();
-                
-                // Main viewmodel
-                unityContainer.RegisterType<MainViewModel, MainViewModel>(
-                    new ContainerControlledLifetimeManager(),
-                    new InjectionConstructor(
-                        networkTabViewModel,
-                        transmitterInformationTabViewModel,
-                        sensorInfomationTabViewModel,
-                        transmitterSettingTabViewModel,
-                        diagnosticsTabViewModel,
-                        variableEditorViewModel,
-                        transmitterManager,
-                        statusOutputViewModel,
-                        responseOutputViewModel,
-                        isFactoryMode));
-            }
-            catch (ModbusMasterException ex)
-            {
-                throw new ModbusMasterException(Localization.strProgramError, ex);
+                    new InjectionConstructor(repository));
+
             }
             catch (Exception ex)
             {
-                throw new ModbusMasterException(Localization.strProgramError, ex);
+                Console.WriteLine(ex.Message);
             }
         }
     }

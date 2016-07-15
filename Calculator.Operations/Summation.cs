@@ -3,11 +3,11 @@ using Calculator.Abstract;
 
 namespace Calculator.Operations
 {
-    public class Summation : IOperation
+    internal class Summation : IOperation
     {
         public float ExecuteOperation(params float[] parameters)
         {
-            return 0;
+            return parameters[0] + parameters[1];
         }
 
         public int Priority
