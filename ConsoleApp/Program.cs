@@ -38,9 +38,14 @@ namespace ConsoleApp
 
                         Console.WriteLine("Result of calculating: {0}", result);
                     }
-                    catch (Exception e)
+                    catch (InvalidOperationException ex)
                     {
-                        Console.WriteLine("Exception: {0}. Message: {1}", e, e.Message);
+                        Console.WriteLine(ex.Message);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        throw;
                     }
                 }
             }
@@ -81,6 +86,7 @@ namespace ConsoleApp
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                throw;
             }
         }
     }

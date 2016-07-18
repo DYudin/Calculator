@@ -51,7 +51,7 @@ namespace Calculator.BL.Logic
                     IOperation operation = _repository.AvailableOperations.FirstOrDefault(x => x.Sign == str);
                     if (operation == null)
                     {
-                        throw new InvalidOperationException("There are now needed operation in repository");
+                        throw new InvalidOperationException(string.Format("The operation: {0} is not supported", str));
                     }
 
                     if (operation.NumberOfParameters == 1)
