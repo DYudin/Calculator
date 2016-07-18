@@ -10,7 +10,6 @@ namespace Calculator.BL.Logic
     public class CalculatorEngine : ICalculatorEngine
     {
         private readonly List<string> _supportedSigns;
-
         private readonly IOperationsRepository _repository;
 
         public CalculatorEngine(IOperationsRepository repository)
@@ -18,30 +17,30 @@ namespace Calculator.BL.Logic
             Contract.Requires<ArgumentNullException>(repository != null, "repository");
 
             _repository = repository;
-            _supportedSigns = this._repository.AvailableOperations.Select(e => e.Sign).ToList();
-            _supportedSigns =
-            new List<string>(new string[] { "(", ")", "+", "-", "*", "/" }); //"^"
+            _supportedSigns = extractSigns();
         }
 
-        public float Calculate(string[] chain)
+        public double Calculate(string[] chain)
         {
             Contract.Requires<ArgumentNullException>(chain != null, "chain");
 
             Stack<string> stack = new Stack<string>();
             Queue<string> queue = new Queue<string>(chain);
             string str = queue.Dequeue();
+
             while (queue.Count >= 0)
             {
-                if (!_supportedSigns.Contains(str))
+                double temp;
+                if (!_supportedSigns.Contains(str) && Double.TryParse(str, out temp))
                 {
                     stack.Push(str);
                     str = queue.Dequeue();
                 }
                 else
                 {
-                    float summ = 0;
+                    double summ = 0;
 
-                    IOperation operation = _repository.AvailableOperations.First(x => x.Sign == str);
+                    IOperation operation = _repository.AvailableOperations.FirstOrDefault(x => x.Sign == str);
                     if (operation == null)
                     {
                         throw new InvalidOperationException("There are now needed operation in repository");
@@ -49,13 +48,13 @@ namespace Calculator.BL.Logic
 
                     if (operation.NumberOfParameters == 1)
                     {
-                        operation.ExecuteOperation(Convert.ToSingle(stack.Pop()));
+                        summ = operation.ExecuteOperation(Convert.ToDouble(stack.Pop()));
                     }
                     else if (operation.NumberOfParameters == 2)
                     {
-                        float secondParam = Convert.ToSingle(stack.Pop());
-                        float firstParam = Convert.ToSingle(stack.Pop());
-                        operation.ExecuteOperation(firstParam, secondParam);
+                        double secondParam = Convert.ToDouble(stack.Pop());
+                        double firstParam = Convert.ToDouble(stack.Pop());
+                        summ = operation.ExecuteOperation(firstParam, secondParam);
                     }
 
                     stack.Push(summ.ToString());
@@ -64,51 +63,14 @@ namespace Calculator.BL.Logic
                     else
                         break;
                 }
-
             }
-            return Convert.ToSingle(stack.Pop());
+
+            return Convert.ToDouble(stack.Pop());
         }
 
-          //switch (str)
-          //              {
-
-          //                  case "+":
-          //                      {
-          //                          decimal a = Convert.ToDecimal(stack.Pop());
-          //                          decimal b = Convert.ToDecimal(stack.Pop());
-          //                          summ = a + b;
-          //                          break;
-          //                      }
-          //                  case "-":
-          //                      {
-          //                          decimal a = Convert.ToDecimal(stack.Pop());
-          //                          decimal b = Convert.ToDecimal(stack.Pop());
-          //                          summ = b - a;
-          //                          break;
-          //                      }
-          //                  case "*":
-          //                      {
-          //                          decimal a = Convert.ToDecimal(stack.Pop());
-          //                          decimal b = Convert.ToDecimal(stack.Pop());
-          //                          summ = b * a;
-          //                          break;
-          //                      }
-          //                  case "/":
-          //                      {
-          //                          decimal a = Convert.ToDecimal(stack.Pop());
-          //                          decimal b = Convert.ToDecimal(stack.Pop());
-          //                          summ = b / a;
-          //                          break;
-          //                      }
-          //                  case "^":
-          //                      {
-          //                          decimal a = Convert.ToDecimal(stack.Pop());
-          //                          decimal b = Convert.ToDecimal(stack.Pop());
-          //                          summ = Convert.ToDecimal(Math.Pow(Convert.ToDouble(b), Convert.ToDouble(a)));
-          //                          break;
-          //                      }
-          //              }
+        private List<string> extractSigns()
+        {
+            return this._repository.AvailableOperations.Select(e => e.Sign).ToList();
+        }
     }
 }
-
-

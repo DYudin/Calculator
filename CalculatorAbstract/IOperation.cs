@@ -3,10 +3,10 @@ namespace Calculator.Abstract
 {
     public interface IOperation
     {
-        float ExecuteOperation(params float[] parameters);
+        double ExecuteOperation(params double[] parameters);
 
         int Priority { get; }
-        
+
         string Sign { get; }
 
         int NumberOfParameters { get; }

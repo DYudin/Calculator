@@ -1,18 +1,26 @@
 ﻿
+using System;
 using Calculator.Abstract;
 
 namespace Calculator.Operations
 {
-    class SinusCalculation : IOperation
+    internal class SinusCalculation : IOperation
     {
-        public float ExecuteOperation(params float[] parameters)
+        private const int numberOfParameters = 1;
+
+        public double ExecuteOperation(params double[] parameters)
         {
-            return 0;
+            if (parameters.Length != numberOfParameters)
+            {
+                throw new ArgumentException(string.Format("Invalid count of input parameters. Must be: {0}", numberOfParameters));
+            }
+
+            return Math.Sin(parameters[0]);
         }
 
         public int Priority
         {
-            get { return 1; }
+            get { return 4; }
         }
 
         public string Sign
@@ -20,9 +28,9 @@ namespace Calculator.Operations
             get { return "sin"; }
         }
 
-        public int numberOfParameters
+        public int NumberOfParameters
         {
-            get { return 1; }
+            get { return numberOfParameters; }
         }
     }
 }

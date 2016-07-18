@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using Calculator.Abstract;
 
 namespace Calculator.BL.Repository
 {
     public class OperationsRepository : IOperationsRepository
     {
-        private IEnumerable<IOperation> _availableOperations;
+        private List<IOperation> _availableOperations;
 
         public OperationsRepository()
         {
@@ -26,13 +25,13 @@ namespace Calculator.BL.Repository
         public void AddOperation(IOperation operation)
         {
             Contract.Requires<ArgumentNullException>(operation != null, "operation");
-            _availableOperations.ToList().Add(operation);
+            _availableOperations.Add(operation);
         }
 
         public void AddOperations(IEnumerable<IOperation> operations)
         {
             Contract.Requires<ArgumentNullException>(operations != null, "operations");
-            _availableOperations.ToList().AddRange(operations);
+            _availableOperations.AddRange(operations);
         }
     }
 }

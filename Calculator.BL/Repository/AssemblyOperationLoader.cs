@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.IO;
 using System.Reflection;
 using Calculator.Abstract;
 
@@ -20,19 +19,18 @@ namespace Calculator.BL.Repository
 
         public void LoadOperations(string pathToFile)
         {
-            Contract.Requires<ArgumentException>(string.IsNullOrWhiteSpace(pathToFile), "pathToFile");
-            string fileName = "Calculator.Operations.dll";
-            string directory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            Contract.Requires<ArgumentException>(!string.IsNullOrWhiteSpace(pathToFile), "pathToFile");
 
             List<IOperation> types = new List<IOperation>();
 
-            Assembly assembly = Assembly.LoadFrom(directory + "\\" +  fileName);
+            Assembly assembly = Assembly.LoadFrom(pathToFile);
 
             foreach (Type type in assembly.GetTypes())
             {
-                if (type.IsClass && typeof (IOperation).IsAssignableFrom(type))
+                if (type.IsClass && typeof(IOperation).IsAssignableFrom(type))
                 {
-                    types.Add((IOperation) type);
+                    var instance = Activator.CreateInstance(type);
+                    types.Add((IOperation)instance);
                 }
             }
 

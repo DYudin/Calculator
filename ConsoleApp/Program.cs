@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
 using Microsoft.Practices.Unity;
 using Calculator.BL.Logic;
 using Calculator.BL.Repository;
@@ -8,7 +10,7 @@ namespace ConsoleApp
     internal class Program
     {
         // TODO:
-        private static string pathToFile = string.Empty;
+        private static string pathToFile = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\" + "Calculator.Operations.dll";
 
         private static void Main(string[] args)
         {
@@ -20,6 +22,7 @@ namespace ConsoleApp
                 var cmd = string.Empty;
                 while (cmd != "exit")
                 {
+                    Console.WriteLine("Введите выражение");
                     cmd = Console.ReadLine();
 
                     if (string.IsNullOrEmpty(cmd)) continue;
@@ -27,11 +30,11 @@ namespace ConsoleApp
                     {
                         // 1. Parse input line
                         IParser parser = unity.Resolve<IParser>();
-                        string[] separatedString = parser.Parse(cmd);
-                       
+                        string[] separatedPostFixNotationString = parser.Parse(cmd);
+
                         // 2. Execute calculation
                         ICalculatorEngine engine = unity.Resolve<ICalculatorEngine>();
-                        var result = engine.Calculate(separatedString);
+                        var result = engine.Calculate(separatedPostFixNotationString);
 
                         Console.WriteLine("Result of calculating: {0}", result);
                     }
@@ -65,7 +68,7 @@ namespace ConsoleApp
                 loader.LoadOperations(pathToFile);
 
                 // 3. Build Parser
-                unityContainer.RegisterType<IParser, ReversePolishNotationParser>(
+                unityContainer.RegisterType<IParser, PostfixNotationParser>(
                     new ContainerControlledLifetimeManager(),
                     new InjectionConstructor(repository));
 
