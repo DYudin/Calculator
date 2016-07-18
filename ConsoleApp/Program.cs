@@ -22,7 +22,7 @@ namespace ConsoleApp
                 var cmd = string.Empty;
                 while (cmd != "exit")
                 {
-                    Console.WriteLine("Введите выражение");
+                    Console.WriteLine("Enter expression:");
                     cmd = Console.ReadLine();
 
                     if (string.IsNullOrEmpty(cmd)) continue;
