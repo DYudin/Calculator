@@ -7,6 +7,9 @@ using Calculator.BL.Repository;
 
 namespace Calculator.BL.Logic
 {
+    /// <summary>
+    /// Class which provides calculating with the supported operations
+    /// </summary>
     public class CalculatorEngine : ICalculatorEngine
     {
         private readonly List<string> _supportedSigns;
@@ -20,12 +23,17 @@ namespace Calculator.BL.Logic
             _supportedSigns = extractSigns();
         }
 
-        public double Calculate(string[] chain)
+        /// <summary>
+        /// Calculates result from a set of operations and operands
+        /// </summary>
+        /// <param name="inputArray">Array with operations and operands in postfix notation</param>
+        /// <returns>Result of calculation</returns>
+        public double Calculate(string[] inputArray)
         {
-            Contract.Requires<ArgumentNullException>(chain != null, "chain");
+            Contract.Requires<ArgumentNullException>(inputArray != null, "inputArray");
 
             Stack<string> stack = new Stack<string>();
-            Queue<string> queue = new Queue<string>(chain);
+            Queue<string> queue = new Queue<string>(inputArray);
             string str = queue.Dequeue();
 
             while (queue.Count >= 0)

@@ -3,6 +3,6 @@ namespace Calculator.BL.Logic
 {
     public interface ICalculatorEngine
     {
-        double Calculate(string[] chain);
+        double Calculate(string[] inputArray);
     }
 }
