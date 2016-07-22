@@ -15,6 +15,11 @@ namespace Calculator.Operations
                 throw new ArgumentException(string.Format("Invalid count of input parameters. Must be: {0}", numberOfParameters));
             }
 
+            if (parameters[1] == 0)
+            {
+                throw new ArgumentException("Denominator must be nonzero");
+            }
+
             return parameters[0] / parameters[1];
         }
 

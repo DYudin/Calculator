@@ -3,29 +3,26 @@ using Calculator.Abstract;
 
 namespace Calculator.Operations
 {
-    internal class RightBracket
+    internal class RightBracket : IOperation
     {
-        internal class LeftBracket : IOperation
+        public double ExecuteOperation(params double[] parameters)
         {
-            public double ExecuteOperation(params double[] parameters)
-            {
-                throw new NotSupportedException();
-            }
+            throw new NotSupportedException();
+        }
 
-            public int Priority
-            {
-                get { return 0; }
-            }
+        public int Priority
+        {
+            get { return 0; }
+        }
 
-            public string Sign
-            {
-                get { return ")"; }
-            }
+        public string Sign
+        {
+            get { return ")"; }
+        }
 
-            public int NumberOfParameters
-            {
-                get { return 0; }
-            }
+        public int NumberOfParameters
+        {
+            get { return 0; }
         }
     }
 }

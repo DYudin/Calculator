@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using Calculator.BL.Repository;
 
@@ -12,8 +11,9 @@ namespace Calculator.BL.Logic
     public class PostfixNotationParser : IParser
     {
         private readonly List<string> _supportedSigns;
-
         private readonly IOperationsRepository _repository;
+        private const string strLeftBracket = "(";
+        private const string strRightBracket = ")";
 
         /// <summary>
         /// Ctor
@@ -21,7 +21,10 @@ namespace Calculator.BL.Logic
         /// <param name="repository">Repository which contains all available operations</param>
         public PostfixNotationParser(IOperationsRepository repository)
         {
-            Contract.Requires<ArgumentNullException>(repository != null, "repository");
+            if (repository == null)
+            {
+                throw new ArgumentNullException("repository", "shouldn't be null");
+            }
 
             _repository = repository;
             _supportedSigns = extractSigns();
@@ -34,44 +37,48 @@ namespace Calculator.BL.Logic
         /// <returns>Array in postfix notation</returns>
         public string[] Parse(string inputString)
         {
-            Contract.Requires<ArgumentException>(!string.IsNullOrWhiteSpace(inputString), "inputString");
+            if (string.IsNullOrWhiteSpace(inputString))
+            {
+                throw new ArgumentException("shouldn't be null or white space", "inputString");
+            }
 
             List<string> outputSeparated = new List<string>();
             Stack<string> stack = new Stack<string>();
-            foreach (string c in separate(inputString))
+            foreach (string currentElement in separate(inputString))
             {
-                if (_supportedSigns.Contains(c))
+                if (_supportedSigns.Contains(currentElement) || currentElement.Equals(strLeftBracket) ||
+                    currentElement.Equals(strRightBracket))
                 {
-                    if (stack.Count > 0 && !c.Equals("("))
+                    if (stack.Count > 0 && !currentElement.Equals(strLeftBracket))
                     {
-                        if (c.Equals(")"))
+                        if (currentElement.Equals(strRightBracket))
                         {
                             string s = stack.Pop();
-                            while (s != "(")
+                            while (s != strLeftBracket)
                             {
                                 outputSeparated.Add(s);
                                 s = stack.Pop();
                             }
                         }
-                        else if (getPriority(c) > getPriority(stack.Peek()))
+                        else if (getPriority(currentElement) > getPriority(stack.Peek()))
                         {
-                            stack.Push(c);
+                            stack.Push(currentElement);
                         }
                         else
                         {
-                            while (stack.Count > 0 && getPriority(c) <= getPriority(stack.Peek()))
+                            while (stack.Count > 0 && getPriority(currentElement) <= getPriority(stack.Peek()))
                                 outputSeparated.Add(stack.Pop());
-                            stack.Push(c);
+                            stack.Push(currentElement);
                         }
                     }
                     else
                     {
-                        stack.Push(c);
+                        stack.Push(currentElement);
                     }
                 }
                 else
                 {
-                    outputSeparated.Add(c);
+                    outputSeparated.Add(currentElement);
                 }
             }
 
@@ -102,7 +109,9 @@ namespace Calculator.BL.Logic
                 {
                     if (Char.IsDigit(inputString[position]))
                     {
-                        for (int i = position + 1; i < inputString.Length && (Char.IsDigit(inputString[i]) || inputString[i] == ','); i++)
+                        for (int i = position + 1;
+                            i < inputString.Length && (Char.IsDigit(inputString[i]) || inputString[i] == ',');
+                            i++)
                         {
                             piece += inputString[i];
                         }
@@ -121,9 +130,14 @@ namespace Calculator.BL.Logic
             }
         }
 
-        private int getPriority(string s)
+        private int getPriority(string element)
         {
-            return _repository.AvailableOperations.First(e => e.Sign == s).Priority;
+            // Brackets has a higher priority over other operations
+            var priority = element.Equals(strLeftBracket) || element.Equals(strRightBracket)
+                ? 0
+                : _repository.AvailableOperations.First(e => e.Sign == element).Priority;
+
+            return priority;
         }
 
         private List<string> extractSigns()

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Reflection;
 using Calculator.Abstract;
 
@@ -12,14 +11,20 @@ namespace Calculator.BL.Repository
 
         public AssemblyOperationLoader(IOperationsRepository repository)
         {
-            Contract.Requires<ArgumentNullException>(repository != null, "repository");
+            if (repository == null)
+            {
+                throw new ArgumentNullException("repository", "shouldn't be null");
+            }
 
             _repository = repository;
         }
 
         public void LoadOperations(string pathToFile)
         {
-            Contract.Requires<ArgumentException>(!string.IsNullOrWhiteSpace(pathToFile), "pathToFile");
+            if (string.IsNullOrWhiteSpace(pathToFile))
+            {
+                throw new ArgumentException("shouldn't be null or white space", "pathToFile");
+            }
 
             List<IOperation> types = new List<IOperation>();
 

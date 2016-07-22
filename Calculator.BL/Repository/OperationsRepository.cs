@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using Calculator.Abstract;
 
 namespace Calculator.BL.Repository
@@ -24,13 +23,19 @@ namespace Calculator.BL.Repository
 
         public void AddOperation(IOperation operation)
         {
-            Contract.Requires<ArgumentNullException>(operation != null, "operation");
+            if (operation == null)
+            {
+                throw new ArgumentNullException("operation", "shouldn't be null");
+            }
             _availableOperations.Add(operation);
         }
 
         public void AddOperations(IEnumerable<IOperation> operations)
         {
-            Contract.Requires<ArgumentNullException>(operations != null, "operations");
+            if (operations == null)
+            {
+                throw new ArgumentNullException("operations", "shouldn't be null");
+            }
             _availableOperations.AddRange(operations);
         }
     }

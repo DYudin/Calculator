@@ -42,6 +42,10 @@ namespace ConsoleApp
                     {
                         Console.WriteLine(ex.Message);
                     }
+                    catch (ArgumentException ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message);

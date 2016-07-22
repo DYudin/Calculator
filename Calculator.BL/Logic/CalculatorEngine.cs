@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using Calculator.Abstract;
 using Calculator.BL.Repository;
@@ -17,7 +16,10 @@ namespace Calculator.BL.Logic
 
         public CalculatorEngine(IOperationsRepository repository)
         {
-            Contract.Requires<ArgumentNullException>(repository != null, "repository");
+            if (repository == null)
+            {
+                throw new ArgumentNullException("repository", "shouldn't be null");
+            }
 
             _repository = repository;
             _supportedSigns = extractSigns();
@@ -30,7 +32,10 @@ namespace Calculator.BL.Logic
         /// <returns>Result of calculation</returns>
         public double Calculate(string[] inputArray)
         {
-            Contract.Requires<ArgumentNullException>(inputArray != null, "inputArray");
+            if (inputArray == null)
+            {
+                throw new ArgumentNullException("inputArray", "shouldn't be null");
+            }
 
             Stack<string> stack = new Stack<string>();
             Queue<string> queue = new Queue<string>(inputArray);
@@ -53,6 +58,8 @@ namespace Calculator.BL.Logic
                     {
                         throw new InvalidOperationException(string.Format("The operation: {0} is not supported", str));
                     }
+
+                    validate(operation.NumberOfParameters, stack.Count);
 
                     if (operation.NumberOfParameters == 1)
                     {
@@ -79,6 +86,14 @@ namespace Calculator.BL.Logic
         private List<string> extractSigns()
         {
             return this._repository.AvailableOperations.Select(e => e.Sign).ToList();
+        }
+
+        private void validate(int operandsForOperation, int stackLength)
+        {
+            if (operandsForOperation > stackLength)
+            {
+                throw new ArgumentException("Input string hasn't needed count of operands");
+            }
         }
     }
 }
