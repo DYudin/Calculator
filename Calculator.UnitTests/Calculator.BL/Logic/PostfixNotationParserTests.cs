@@ -114,8 +114,6 @@ namespace Calculator.UnitTests.Calculator.BL.Logic
                 new OperationMock() {NumberOfParameters = 2, Priority = 1, Sign = "-"},
                 new OperationMock() {NumberOfParameters = 2, Priority = 2, Sign = "*"},
                 new OperationMock() {NumberOfParameters = 2, Priority = 2, Sign = "/"},
-                new OperationMock() {NumberOfParameters = 0, Priority = 0, Sign = "("},
-                new OperationMock() {NumberOfParameters = 0, Priority = 0, Sign = ")"},
                 new OperationMock() {NumberOfParameters = 1, Priority = 4, Sign = "sin"}
             };
         }
